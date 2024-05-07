@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Imposto de Renda</title>
+    <link rel="stylesheet" href="static/css/styles.css" />
+  </head>
+  <body>
+    <header>
+      <div class="header-left">
+        <!-- Ícone à esquerda -->
+        <img
+          src="https://cdn.icon-icons.com/icons2/2699/PNG/512/servicenow_logo_icon_168835.png"
+          alt="Ícone"
+        />
+      </div>
+      <div class="header-right">
+        <!-- Botões à direita -->
+        <button class="nav-options" id="dashboardBtn">Dashboard</button>
+        <button class="nav-options" id="usernameBtn">Username</button>
+      </div>
+    </header>
+    <div class="container">
+      <div class="dark-gray-box">
+        <div class="light-gray-box">
+          <div class="list">
+            <!-- Aqui serão adicionados dinamicamente os itens da lista -->
+          </div>
+          <div class="buttons">
+            <!-- Botão para abrir o modal de adicionar cliente -->
+            <button
+              class="button-add-user"
+              id="addBtn"
+              data-modal-target="#addModal"
+            >
+              Adicionar
+            </button>
+            <button class="button-remove-user" id="removeBtn">Remover</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de adicionar cliente -->
+    <div class="modal" id="addModal">
+      <div class="modal-content">
+        <span class="close-button" data-modal-close="#addModal">&times;</span>
+        <h2>Adicionar Cliente</h2>
+        <form id="addClientForm">
+          <div class="form-group">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" required />
+          </div>
+          <div class="form-group">
+            <label for="cpf">CPF:</label>
+            <input type="text" id="cpf" name="cpf" required />
+          </div>
+          <div class="form-group">
+            <label for="dataNascimento">Data de Nascimento:</label>
+            <input
+              type="date"
+              id="dataNascimento"
+              name="dataNascimento"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="email">E-mail:</label>
+            <input type="email" id="email" name="email" required />
+          </div>
+          <div class="form-group">
+            <label for="telefone">Telefone:</label>
+            <input type="tel" id="telefone" name="telefone" required />
+          </div>
+          <div class="form-group">
+            <label for="documentos">Documentos:</label>
+            <input type="file" id="documentos" name="documentos" multiple />
+          </div>
+          <div class="buttons">
+            <button
+              type="button-modal-add-user-cancel"
+              class="btn cancel"
+              data-modal-close="#addModal"
+            >
+              Cancelar
+            </button>
+            <button type="button-modal-add-user-save" class="btn save">
+              Salvar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="static/js/script.js"></script>
+  </body>
+  <footer>
+    <p>2024 © - Todos os Direitos Reservados.</p>
+  </footer>
+</html>
