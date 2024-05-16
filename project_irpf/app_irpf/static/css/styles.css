@@ -156,19 +156,23 @@ header {
 
 .dark-gray-box {
   background-color: #c2c0c0;
-  padding: 20px;
+  padding: 15px;
+  min-width: 50%;
+  min-height: 50%;
 }
 
 .light-gray-box {
   background-color: #d9d9d9;
   padding: 20px;
+  height: 85%;
 }
 
 footer {
   background-color: #ccc;
+  margin-top: 200px;
   text-align: center;
   padding: 20px 0;
-  position: fixed;
+  position: sticky;
   bottom: 0;
   width: 100%;
 }
