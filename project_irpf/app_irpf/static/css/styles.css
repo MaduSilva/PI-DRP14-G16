@@ -36,7 +36,11 @@ body {
   padding: 20px;
   border-radius: 5px;
   max-width: 500px;
+  margin-bottom: 60px;
   width: 90%;
+  max-width: 80%;
+  max-height: 80%;
+  overflow: auto;
 
   h2 {
     text-align: center;
@@ -55,7 +59,6 @@ body {
   cursor: pointer;
 }
 
-/* Estilos para os campos do formulário */
 .form-group {
   margin-bottom: 20px;
 }
@@ -77,7 +80,6 @@ body {
   padding: 5px;
 }
 
-/* Estilos para os botões do modal */
 .buttons {
   display: flex;
   justify-content: space-between;
@@ -93,6 +95,21 @@ body {
 
 .button-remove-user {
   background-color: #d88e8a;
+  margin-left: 10px;
+}
+
+.deletable-message {
+  font-size: 10px;
+  text-align: center;
+}
+
+.deletable {
+  cursor: pointer;
+}
+
+.deletable:hover {
+  background-color: #d88e8a;
+  color: white;
 }
 
 button {
@@ -110,7 +127,6 @@ button {
   background-color: #7dbe97;
 }
 
-/* Estilos para o cabeçalho */
 header {
   display: flex;
   justify-content: space-between;
@@ -126,45 +142,39 @@ header {
   display: flex;
 }
 
-/* Estilos para a lista de clientes */
 .list-item {
-  background-color: #4c72b0;
+  background-color: #99b9ea;
   padding: 15px;
   margin-bottom: 10px;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(2, 1fr);
+  justify-items: end;
 }
 
 .user-info {
   color: white;
 }
 
-/* Estilos para o botão de adicionar na lista */
 #addBtn {
   margin-left: auto;
 }
 
-/* Estilos para o conteúdo principal */
 .container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 85vh;
-  max-width: 1200px; /* Define a largura máxima do contêiner */
-  margin: 0 auto; /* Centraliza o contêiner na página */
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 50px;
 }
 
 .dark-gray-box {
-  background-color: #c2c0c0;
+  background-color: #d9d9d9;
   padding: 15px;
   min-width: 50%;
   min-height: 50%;
-}
-
-.light-gray-box {
-  background-color: #d9d9d9;
-  padding: 20px;
-  height: 85%;
+  border: 15px solid #c2c0c0;
 }
 
 footer {

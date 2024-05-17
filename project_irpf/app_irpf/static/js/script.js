@@ -1,86 +1,141 @@
-// Função para abrir e fechar o modal
-document.addEventListener('click', function(event) {
-    if (event.target.dataset.modalTarget) {
-      const modal = document.querySelector(event.target.dataset.modalTarget);
-      openModal(modal);
-    }
-  
-    if (event.target.dataset.modalClose) {
-      const modal = document.querySelector(event.target.dataset.modalClose);
-      closeModal(modal);
-    }
-  });
-  
-  function openModal(modal) {
-    if (modal == null) return;
-    modal.classList.add('active');
+document.addEventListener("click", function (event) {
+  if (event.target.dataset.modalTarget) {
+    const modal = document.querySelector(event.target.dataset.modalTarget);
+    openModal(modal);
   }
 
-  // Função para remover o último item da lista
-function removerItem() {
-    const list = document.querySelector('.list');
-    const items = list.querySelectorAll('.list-item');
-  
-    // Verifica se há itens na lista para remover
-    if (items.length > 0) {
-      // Remove o último item da lista
-      list.removeChild(items[items.length - 1]);
+  if (event.target.dataset.modalClose) {
+    const modal = document.querySelector(event.target.dataset.modalClose);
+    closeModal(modal);
+  }
+});
+
+function openModal(modal) {
+  if (modal == null) return;
+  modal.classList.add("active");
+}
+
+let isDeleteMode = false;
+
+function toggleDeleteMode() {
+  isDeleteMode = !isDeleteMode;
+  const statusMessage = document.getElementById("statusMessage");
+
+  if (isDeleteMode) {
+    statusMessage.textContent =
+      "Selecione os itens que deseja excluir e clique no botão 'remover' novamente quando encerrar.";
+    document.querySelectorAll(".list-item").forEach((item) => {
+      item.classList.add("deletable");
+    });
+  } else {
+    statusMessage.textContent = "";
+    document.querySelectorAll(".list-item").forEach((item) => {
+      item.classList.remove("deletable");
+    });
+  }
+}
+
+function removeItem(event) {
+  if (isDeleteMode) {
+    const item = event.target.closest(".list-item");
+    if (item) {
+      item.remove();
     }
   }
+}
 
-  // Adiciona um ouvinte de evento ao botão 'Remover'
-document.getElementById('removeBtn').addEventListener('click', removerItem);
+function addRemoveListener(item) {
+  item.addEventListener("click", removeItem);
+}
 
-  
-  
-  function closeModal(modal) {
-    if (modal == null) return;
-    modal.classList.remove('active');
-  }
-  
-  // Função para adicionar um novo cliente à lista
-  document.getElementById('addClientForm').addEventListener('submit', function(event) {
+document
+  .getElementById("removeBtn")
+  .addEventListener("click", toggleDeleteMode);
+
+function closeModal(modal) {
+  if (modal == null) return;
+  modal.classList.remove("active");
+}
+
+document
+  .getElementById("addClientForm")
+  .addEventListener("submit", function (event) {
     event.preventDefault();
-  
-    const nome = document.getElementById('nome').value;
-    const cpf = document.getElementById('cpf').value;
-    const dataNascimento = document.getElementById('dataNascimento').value;
-    const email = document.getElementById('email').value;
-    const telefone = document.getElementById('telefone').value;
-  
-    const list = document.querySelector('.list');
-  
-    // Cria um novo item da lista
-    const newItem = document.createElement('div');
-    newItem.classList.add('list-item');
-    newItem.innerHTML = `
-      <div class="user-info">${nome}</div>
 
+    const name = document.getElementById("name").value;
+    const status = document.getElementById("status").value;
+
+    const list = document.querySelector(".list");
+
+    const newItem = document.createElement("div");
+    newItem.classList.add("list-item");
+    newItem.innerHTML = `
+      <div class="user-info-name">${name}</div>
+      <div class="user-info-status"> Situação: ${status}</div>
     `;
-  
-    // Adiciona o novo item à lista
+
     list.appendChild(newItem);
-  
-    // Fecha o modal após adicionar o cliente
-    const modal = document.getElementById('addModal');
+
+    addRemoveListener(newItem);
+
+    const modal = document.getElementById("addModal");
     closeModal(modal);
   });
-  
 
-  // Função para formatar CPF
-function formatarCPF(cpf) {
-  cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
+function addInitialRemoveListeners() {
+  const items = document.querySelectorAll(".list-item");
+  items.forEach(addRemoveListener);
+}
 
-  // Aplica a máscara de CPF
-  cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2');
-  cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2');
-  cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+document.addEventListener("DOMContentLoaded", addInitialRemoveListeners);
+
+// document
+//   .getElementById("addCustomerForm")
+//   .addEventListener("submit", function (event) {
+//     event.preventDefault();
+
+//     const formData = new FormData(this);
+
+//     fetch("", {
+//       method: "POST",
+//       body: formData,
+//       headers: {
+//         "X-CSRFToken": "{{ csrf_token }}",
+//       },
+//     })
+//       .then((response) => response.json())
+//       .then((data) => {
+//         console.log(data);
+//         const list = document.querySelector(".list");
+//         const newItem = document.createElement("div");
+//         newItem.classList.add("list-item");
+//         newItem.innerHTML = `
+//       <div class="user-info-name">${data.name}</div>
+//       <div class="user-info-cpf">${data.cpf}</div>
+//       <div class="user-info-birthDate">${data.birthDate}</div>
+//       <div class="user-info-email">${data.email}</div>
+//       <div class="user-info-phone">${data.phone}</div>
+//       <div class="user-info-documents">${data.documents}</div>
+//       <div class="user-info-status">${data.status}</div>
+//       `;
+//         list.appendChild(newItem);
+//       })
+//       .catch((error) => {
+//         console.error("Error:", error);
+//       });
+//   });
+
+function formatCPF(cpf) {
+  cpf = cpf.replace(/\D/g, "");
+
+  cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+  cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+  cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
 
   return cpf;
 }
 
-// Evento para formatar CPF enquanto o usuário digita
-document.getElementById('cpf').addEventListener('input', function() {
+document.getElementById("cpf").addEventListener("input", function () {
   var cpf = this.value;
-  this.value = formatarCPF(cpf);
+  this.value = formatCPF(cpf);
 });
