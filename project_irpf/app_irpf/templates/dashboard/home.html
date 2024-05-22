@@ -36,6 +36,14 @@
         <div id="statusMessage" class="deletable-message"></div>
         <br />
         <div class="list">
+          {% for customer in customers %}
+          <div class="list-item" data-customer-id="{{ customer.id}}">
+            <div class="user-info-name">{{ customer.name }}</div>
+            <div class="user-info-status status">
+              Situação: <span class="status">{{ customer.status }}</span>
+            </div>
+          </div>
+          {% endfor %}
         </div>
       </div>
     </div>
@@ -45,6 +53,12 @@
         <span class="close-button" data-modal-close="#addModal">&times;</span>
         <h2>Adicionar Cliente</h2>
         <form id="addClientForm" method="post">
+          {% csrf_token %}
+          <input
+            type="hidden"
+            name="csrfmiddlewaretoken"
+            value="{{ csrf_token }}"
+          />
           <div class="form-group">
             <label for="name">Nome:</label>
             <input type="text" id="name" name="name" required />
@@ -80,15 +94,13 @@
           </div>
           <div class="buttons">
             <button
-              type="button-modal-add-user-cancel"
+              type="button"
               class="btn cancel"
               data-modal-close="#addModal"
             >
               Cancelar
             </button>
-            <button type="button-modal-add-user-save" class="btn save">
-              Salvar
-            </button>
+            <button type="submit" class="btn save">Salvar</button>
           </div>
         </form>
       </div>

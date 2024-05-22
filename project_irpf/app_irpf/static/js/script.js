@@ -39,7 +39,30 @@ function removeItem(event) {
   if (isDeleteMode) {
     const item = event.target.closest(".list-item");
     if (item) {
-      item.remove();
+      const customerId = item.dataset.customerId;
+      fetch("/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]")
+            .value,
+        },
+        body: new URLSearchParams({
+          delete: true,
+          customer_id: customerId,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === "success") {
+            item.remove();
+          } else {
+            console.error("Failed to delete customer:", data.message);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
     }
   }
 }
@@ -57,31 +80,6 @@ function closeModal(modal) {
   modal.classList.remove("active");
 }
 
-document
-  .getElementById("addClientForm")
-  .addEventListener("submit", function (event) {
-    event.preventDefault();
-
-    const name = document.getElementById("name").value;
-    const status = document.getElementById("status").value;
-
-    const list = document.querySelector(".list");
-
-    const newItem = document.createElement("div");
-    newItem.classList.add("list-item");
-    newItem.innerHTML = `
-      <div class="user-info-name">${name}</div>
-      <div class="user-info-status"> Situação: ${status}</div>
-    `;
-
-    list.appendChild(newItem);
-
-    addRemoveListener(newItem);
-
-    const modal = document.getElementById("addModal");
-    closeModal(modal);
-  });
-
 function addInitialRemoveListeners() {
   const items = document.querySelectorAll(".list-item");
   items.forEach(addRemoveListener);
@@ -89,41 +87,50 @@ function addInitialRemoveListeners() {
 
 document.addEventListener("DOMContentLoaded", addInitialRemoveListeners);
 
-// document
-//   .getElementById("addCustomerForm")
-//   .addEventListener("submit", function (event) {
-//     event.preventDefault();
+document
+  .getElementById("addClientForm")
+  .addEventListener("submit", function (event) {
+    event.preventDefault();
 
-//     const formData = new FormData(this);
+    const formData = new FormData(this);
 
-//     fetch("", {
-//       method: "POST",
-//       body: formData,
-//       headers: {
-//         "X-CSRFToken": "{{ csrf_token }}",
-//       },
-//     })
-//       .then((response) => response.json())
-//       .then((data) => {
-//         console.log(data);
-//         const list = document.querySelector(".list");
-//         const newItem = document.createElement("div");
-//         newItem.classList.add("list-item");
-//         newItem.innerHTML = `
-//       <div class="user-info-name">${data.name}</div>
-//       <div class="user-info-cpf">${data.cpf}</div>
-//       <div class="user-info-birthDate">${data.birthDate}</div>
-//       <div class="user-info-email">${data.email}</div>
-//       <div class="user-info-phone">${data.phone}</div>
-//       <div class="user-info-documents">${data.documents}</div>
-//       <div class="user-info-status">${data.status}</div>
-//       `;
-//         list.appendChild(newItem);
-//       })
-//       .catch((error) => {
-//         console.error("Error:", error);
-//       });
-//   });
+    fetch(window.location.href, {
+      method: "POST",
+      body: formData,
+      headers: {
+        "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]")
+          .value,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          console.error(data.error);
+        } else {
+          const list = document.querySelector(".list");
+          const newItem = document.createElement("div");
+          newItem.classList.add("list-item");
+          newItem.innerHTML = `
+              <div class="user-info-name">${data.name}</div>
+              <div class="user-info-cpf">${data.cpf}</div>
+              <div class="user-info-birthDate">${data.birthDate}</div>
+              <div class="user-info-email">${data.email}</div>
+              <div class="user-info-phone">${data.phone}</div>
+              <div class="user-info-documents">${data.documents}</div>
+              <div class="user-info-status">${data.status}</div>
+          `;
+          list.appendChild(newItem);
+
+          document.getElementById("addClientForm").reset();
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+
+    const modal = document.getElementById("addModal");
+    closeModal(modal);
+  });
 
 function formatCPF(cpf) {
   cpf = cpf.replace(/\D/g, "");

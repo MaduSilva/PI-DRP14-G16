@@ -148,7 +148,8 @@ header {
   margin-bottom: 10px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  justify-items: end;
+  justify-items: start;
+  align-items: center;
 }
 
 .user-info {
@@ -191,4 +192,21 @@ footer p {
   margin: 0;
   font-size: 14px;
   color: #000;
+}
+
+.user-info-status {
+  height: 22px;
+  padding: 5px;
+  border-radius: 53px;
+  opacity: 50%;
+}
+
+.user-info-status .status {
+  padding: 5px;
+  border-radius: 3px;
+  color: #fff;
+}
+
+.user-info-status .status {
+  background-color: grey;
 }
