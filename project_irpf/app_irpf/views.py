@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from .models import Customer
 import datetime
@@ -32,3 +32,18 @@ def home(request):
     }
 
     return render(request, 'dashboard/home.html', context)
+
+
+
+def customer_details(request, customer_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    data = {
+        'name': customer.name,
+        'cpf': customer.cpf,
+        'birthDate': customer.birthDate.strftime('%Y-%m-%d'),
+        'email': customer.email,
+        'phone': customer.phone,
+        'documents': customer.documents,
+        'status': customer.status,
+    }
+    return JsonResponse(data)
