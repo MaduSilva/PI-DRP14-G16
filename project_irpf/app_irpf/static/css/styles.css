@@ -152,6 +152,11 @@ header {
   align-items: center;
 }
 
+.list-item:hover {
+  background-color: #7A94BB;
+  cursor: pointer;
+}
+
 .user-info {
   color: white;
 }
@@ -220,4 +225,12 @@ footer p {
   top: 10px;
   right: 10px;
   z-index: 1;
+}
+
+.document-image {
+  max-width: 100%; 
+  height: auto; 
+  max-height: 300px; 
+  display: block; 
+  margin: 10px 0; 
 }

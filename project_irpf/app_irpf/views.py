@@ -1,8 +1,11 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from .models import Customer
+from .models import Customer, Document
 import datetime
 
+from django.views.decorators.clickjacking import xframe_options_exempt
+
+@xframe_options_exempt
 def home(request):
     if request.method == 'POST':
         if 'delete' in request.POST:
@@ -12,38 +15,40 @@ def home(request):
                 customer.delete()
                 return JsonResponse({'status': 'success'})
             except Customer.DoesNotExist:
-                return JsonResponse({'status': 'error', 'message': 'Customer not found'}, status=404)
-        else:
-            new_customer = Customer()
-            new_customer.name = request.POST.get('name')
-            new_customer.cpf = request.POST.get('cpf')
-            new_customer.birthDate = datetime.datetime.strptime(request.POST.get('birthDate'), '%Y-%m-%d').date()
-            new_customer.email = request.POST.get('email')
-            new_customer.phone = request.POST.get('phone')
-            new_customer.documents = request.POST.get('documents')
-            new_customer.status = request.POST.get('status')
+                return JsonResponse({'status': 'error', 'message': 'Customer not found'})
+        
+        name = request.POST.get('name')
+        cpf = request.POST.get('cpf')
+        birthDate = request.POST.get('birthDate')
+        if birthDate:
+            birthDate = datetime.datetime.strptime(birthDate, '%Y-%m-%d').date()
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        status = request.POST.get('status')
+        
+        customer = Customer(name=name, cpf=cpf, birthDate=birthDate, email=email, phone=phone, status=status)
+        customer.save()
 
-            new_customer.save()
+        files = request.FILES.getlist('documents')
+        for file in files:
+            Document.objects.create(customer=customer, file=file)
 
-
+        return JsonResponse({'status': 'success', 'id': customer.id})
+    
     customers = Customer.objects.all()
-    context = {
-        'customers': customers
-    }
+    return render(request, 'dashboard/home.html', {'customers': customers})
 
-    return render(request, 'dashboard/home.html', context)
-
-
-
+@xframe_options_exempt
 def customer_details(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
+    documents = customer.documents.all()
     data = {
         'name': customer.name,
         'cpf': customer.cpf,
         'birthDate': customer.birthDate.strftime('%Y-%m-%d'),
         'email': customer.email,
         'phone': customer.phone,
-        'documents': customer.documents,
         'status': customer.status,
+        'documents': [{'url': doc.file.url, 'id': doc.id} for doc in documents],
     }
     return JsonResponse(data)

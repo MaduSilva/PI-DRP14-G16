@@ -26,20 +26,28 @@ function toggleDeleteMode() {
       "Selecione os itens que deseja excluir e clique no botão 'remover' novamente quando encerrar.";
     document.querySelectorAll(".list-item").forEach((item) => {
       item.classList.add("deletable");
+      item.addEventListener("click", removeItem);
     });
   } else {
     statusMessage.textContent = "";
     document.querySelectorAll(".list-item").forEach((item) => {
       item.classList.remove("deletable");
+      item.removeEventListener("click", removeItem);
     });
   }
 }
 
 function removeItem(event) {
   if (isDeleteMode) {
-    const item = event.target.closest(".list-item");
+    const item = event.target.closest(".list-item .user-info-name");
     if (item) {
+      console.log(item);
       const customerId = item.dataset.customerId;
+      console.log(customerId);
+      if (!customerId) {
+        console.error("Customer ID is undefined");
+        return;
+      }
       fetch("/", {
         method: "POST",
         headers: {
@@ -80,73 +88,6 @@ function closeModal(modal) {
   modal.classList.remove("active");
 }
 
-function addInitialRemoveListeners() {
-  const items = document.querySelectorAll(".list-item");
-  items.forEach(addRemoveListener);
-}
-
-document.addEventListener("DOMContentLoaded", addInitialRemoveListeners);
-
-document
-  .getElementById("addClientForm")
-  .addEventListener("submit", function (event) {
-    event.preventDefault();
-
-    const formData = new FormData(this);
-
-    fetch(window.location.href, {
-      method: "POST",
-      body: formData,
-      headers: {
-        "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]")
-          .value,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.error) {
-          console.error(data.error);
-        } else {
-          const list = document.querySelector(".list");
-          const newItem = document.createElement("div");
-          newItem.classList.add("list-item");
-          newItem.innerHTML = `
-              <div class="user-info-name">${data.name}</div>
-              <div class="user-info-cpf">${data.cpf}</div>
-              <div class="user-info-birthDate">${data.birthDate}</div>
-              <div class="user-info-email">${data.email}</div>
-              <div class="user-info-phone">${data.phone}</div>
-              <div class="user-info-documents">${data.documents}</div>
-              <div class="user-info-status">${data.status}</div>
-          `;
-          list.appendChild(newItem);
-
-          document.getElementById("addClientForm").reset();
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-
-    const modal = document.getElementById("addModal");
-    closeModal(modal);
-  });
-
-function formatCPF(cpf) {
-  cpf = cpf.replace(/\D/g, "");
-
-  cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
-  cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
-  cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-
-  return cpf;
-}
-
-document.getElementById("cpf").addEventListener("input", function () {
-  var cpf = this.value;
-  this.value = formatCPF(cpf);
-});
-
 document.addEventListener("DOMContentLoaded", function () {
   const customerNameElements = document.querySelectorAll(".user-info-name");
 
@@ -159,17 +100,30 @@ document.addEventListener("DOMContentLoaded", function () {
         .then((response) => response.json())
         .then((data) => {
           const customerDetails = document.getElementById("customer-details");
+          let documentsHtml = "";
+
+          data.documents.forEach((doc) => {
+            const fileExtension = doc.url.split(".").pop().toLowerCase();
+            if (["png", "jpg", "jpeg"].includes(fileExtension)) {
+              documentsHtml += `<li><img src="${doc.url}" alt="Documento ${doc.id}" class="document-image"></li>`;
+            } else if (fileExtension === "pdf") {
+              documentsHtml += `<li><iframe src="${doc.url}" width="100%" height="500px"></iframe></li>`;
+            } else {
+              documentsHtml += `<li><a href="${doc.url}" target="_blank">Documento ${doc.id}</a></li>`;
+            }
+          });
+
           customerDetails.innerHTML = `
                       <p>Nome: ${data.name}</p>
                       <p>CPF: ${data.cpf}</p>
                       <p>Data de Nascimento: ${data.birthDate}</p>
                       <p>Email: ${data.email}</p>
                       <p>Telefone: ${data.phone}</p>
-                      <p>Documentos: ${data.documents}</p>
                       <p>Status: ${data.status}</p>
+                      <p>Documentos:</p>
+                      <ul>${documentsHtml}</ul>
                   `;
 
-          
           openModal(modal);
         })
         .catch((error) =>
@@ -177,11 +131,68 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     });
   });
-});
 
-document.addEventListener("click", function (event) {
-  if (event.target.dataset.modalClose) {
-    const modal = document.querySelector(event.target.dataset.modalClose);
-    closeModal(modal);
+  const cpfInput = document.getElementById("cpf");
+  if (cpfInput) {
+    cpfInput.addEventListener("input", function () {
+      var cpf = this.value;
+      this.value = formatCPF(cpf);
+    });
+  }
+
+  document
+    .getElementById("addClientForm")
+    .addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const formData = new FormData(this);
+
+      fetch(window.location.href, {
+        method: "POST",
+        body: formData,
+        headers: {
+          "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]")
+            .value,
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === "success") {
+            const list = document.querySelector(".list");
+            const newItem = document.createElement("div");
+            newItem.classList.add("list-item");
+            newItem.dataset.customerId = data.id;
+            newItem.innerHTML = `
+            <div class="user-info-name" data-customer-id="${data.id}">${data.name}</div>
+            <div class="user-info-cpf">${data.cpf}</div>
+            <div class="user-info-birthDate">${data.birthDate}</div>
+            <div class="user-info-email">${data.email}</div>
+            <div class="user-info-phone">${data.phone}</div>
+            <div class="user-info-documents">${data.documents}</div>
+            <div class="user-info-status">${data.status}</div>
+          `;
+            list.appendChild(newItem);
+            addRemoveListener(newItem);
+
+            document.getElementById("addClientForm").reset();
+          } else {
+            console.error(data.message);
+          }
+        })
+        .catch((error) => console.error("Error:", error));
+
+      const modal = document.getElementById("addModal");
+      closeModal(modal);
+    });
+
+  function formatCPF(cpf) {
+    cpf = cpf.replace(/\D/g, "");
+  
+    cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+    cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+    cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+
+    return cpf;
   }
 });
+
