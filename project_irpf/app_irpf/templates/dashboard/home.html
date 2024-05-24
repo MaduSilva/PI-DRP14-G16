@@ -78,10 +78,6 @@
             <input type="tel" id="phone" name="phone" required />
           </div>
           <div class="form-group">
-            <label for="documents">Documentos:</label>
-            <input type="file" id="documents" name="documents" multiple />
-          </div>
-          <div class="form-group">
             <label for="status">Status:</label>
             <select id="status" name="status">
               <option value="Pendente">Pendente</option>
@@ -90,6 +86,30 @@
               <option value="Concluido">Concluído</option>
             </select>
           </div>
+          <div class="document-group">
+            <div class="form-group">
+              <label for="document_name_1">Nome do Documento:</label>
+              <input
+                type="text"
+                id="document_name_1"
+                name="document_name[]"
+                required
+              />
+            </div>
+           
+            <div class="form-group">
+              <label for="document_file_1">Documento:</label>
+              <input
+                type="file"
+                id="document_file_1"
+                name="documents[]"
+                required
+              />
+            </div>
+          </div>
+
+          <button type="button" id="addDocumentBtn">Adicionar Documento</button>
+
           <div class="buttons">
             <button
               type="button"

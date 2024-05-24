@@ -29,9 +29,10 @@ def home(request):
         customer = Customer(name=name, cpf=cpf, birthDate=birthDate, email=email, phone=phone, status=status)
         customer.save()
 
-        files = request.FILES.getlist('documents')
-        for file in files:
-            Document.objects.create(customer=customer, file=file)
+        for i in range(len(request.FILES.getlist('documents[]'))):
+            document_name = request.POST.getlist('document_name[]')[i]
+            document_file = request.FILES.getlist('documents[]')[i]
+            Document.objects.create(customer=customer, name=document_name, file=document_file)
 
         return JsonResponse({'status': 'success', 'id': customer.id})
     

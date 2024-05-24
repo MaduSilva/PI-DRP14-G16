@@ -18,4 +18,5 @@ class Customer(models.Model):
 class Document(models.Model):
     customer = models.ForeignKey(Customer, related_name='documents', on_delete=models.CASCADE)
     file = models.FileField(upload_to='documents/')
+    name = models.CharField(max_length=100) 
     uploaded_at = models.DateTimeField(auto_now_add=True)

@@ -197,7 +197,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function formatCPF(cpf) {
     cpf = cpf.replace(/\D/g, "");
-  
+
     cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
     cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
     cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
@@ -206,3 +206,27 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
+let documentCount = 1;
+
+document
+  .getElementById("addDocumentBtn")
+  .addEventListener("click", function () {
+    documentCount++;
+    const documentGroup = document.createElement("div");
+    documentGroup.classList.add("document-group");
+
+    documentGroup.innerHTML = `
+    <div class="form-group">
+      <label for="document_name_${documentCount}">Nome do Documento:</label>
+      <input type="text" id="document_name_${documentCount}" name="document_name[]" required />
+    </div>
+    <div class="form-group">
+      <label for="document_file_${documentCount}">Documento:</label>
+      <input type="file" id="document_file_${documentCount}" name="documents[]" required />
+    </div>
+  `;
+
+    document
+      .getElementById("addClientForm")
+      .insertBefore(documentGroup, document.getElementById("addDocumentBtn"));
+  });
