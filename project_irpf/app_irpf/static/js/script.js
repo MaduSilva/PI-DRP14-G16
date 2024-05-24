@@ -114,15 +114,25 @@ document.addEventListener("DOMContentLoaded", function () {
           });
 
           customerDetails.innerHTML = `
-                      <p>Nome: ${data.name}</p>
-                      <p>CPF: ${data.cpf}</p>
-                      <p>Data de Nascimento: ${data.birthDate}</p>
-                      <p>Email: ${data.email}</p>
-                      <p>Telefone: ${data.phone}</p>
-                      <p>Status: ${data.status}</p>
-                      <p>Documentos:</p>
-                      <ul>${documentsHtml}</ul>
-                  `;
+            <div class="customer-info">
+              <h2>${data.name}</h2>
+              <div class="info-group">
+                <p><strong>CPF:</strong> ${data.cpf}</p>
+                <p><strong>Data de Nascimento:</strong> ${data.birthDate}</p>
+              </div>
+              <div class="info-group">
+                <p><strong>Email:</strong> ${data.email}</p>
+                <p><strong>Telefone:</strong> ${data.phone}</p>
+              </div>
+              <div class="info-group">
+                <p><strong>Status:</strong> ${data.status}</p>
+              </div>
+            </div>
+            <div class="documents">
+              <h3>Documentos:</h3>
+              <ul>${documentsHtml}</ul>
+            </div>
+          `;
 
           openModal(modal);
         })
