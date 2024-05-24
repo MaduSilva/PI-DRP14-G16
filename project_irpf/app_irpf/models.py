@@ -16,7 +16,15 @@ class Customer(models.Model):
             super(Customer, self).save(*args, **kwargs)
 
 class Document(models.Model):
+    DOCUMENT_TYPES = (
+        ('pdf', 'PDF'),
+        ('docx', 'DOCX'),
+        ('jpg', 'JPG'),
+        ('png', 'PNG'),
+    )
+
     customer = models.ForeignKey(Customer, related_name='documents', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    document_type = models.CharField(max_length=4, choices=DOCUMENT_TYPES)
     file = models.FileField(upload_to='documents/')
-    name = models.CharField(max_length=100) 
     uploaded_at = models.DateTimeField(auto_now_add=True)

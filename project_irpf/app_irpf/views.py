@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from .models import Customer, Document
 import datetime
+import base64
+import os
 
 from django.views.decorators.clickjacking import xframe_options_exempt
 
@@ -32,7 +34,10 @@ def home(request):
         for i in range(len(request.FILES.getlist('documents[]'))):
             document_name = request.POST.getlist('document_name[]')[i]
             document_file = request.FILES.getlist('documents[]')[i]
-            Document.objects.create(customer=customer, name=document_name, file=document_file)
+
+            document_type = document_file.name.split('.')[-1].lower() if '.' in document_file.name else ''
+            
+            Document.objects.create(customer=customer, name=document_name, document_type=document_type, file=document_file)
 
         return JsonResponse({'status': 'success', 'id': customer.id})
     
@@ -50,6 +55,6 @@ def customer_details(request, customer_id):
         'email': customer.email,
         'phone': customer.phone,
         'status': customer.status,
-        'documents': [{'url': doc.file.url, 'id': doc.id} for doc in documents],
+        'documents': [{'id': doc.id, 'name': doc.name, 'data': base64.b64encode(doc.file.read()).decode('utf-8'), 'document_type': doc.document_type} for doc in documents],
     }
     return JsonResponse(data)

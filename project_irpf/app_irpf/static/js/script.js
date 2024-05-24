@@ -103,14 +103,28 @@ document.addEventListener("DOMContentLoaded", function () {
           let documentsHtml = "";
 
           data.documents.forEach((doc) => {
-            const fileExtension = doc.url.split(".").pop().toLowerCase();
-            if (["png", "jpg", "jpeg"].includes(fileExtension)) {
-              documentsHtml += `<li><img src="${doc.url}" alt="Documento ${doc.id}" class="document-image"></li>`;
-            } else if (fileExtension === "pdf") {
-              documentsHtml += `<li><iframe src="${doc.url}" width="100%" height="500px"></iframe></li>`;
+            let docHtml = "";
+
+            if (doc.document_type === "pdf") {
+              docHtml = `<iframe src="data:application/pdf;base64,${doc.data}" class="document-iframe"></iframe>`;
+            } else if (doc.document_type === "docx") {
+              docHtml = `
+                    <p>${doc.name}</p>
+                    <a href="data:application/octet-stream;base64,${doc.data}" download="${doc.name}.docx">Baixar ${doc.name}</a>
+                `;
+            } else if (
+              doc.document_type === "jpg" ||
+              doc.document_type === "png"
+            ) {
+              docHtml = `
+                    <p>${doc.name}</p>
+                    <img src="data:image/png;base64,${doc.data}" alt="${doc.name}" class="document-image">
+                `;
             } else {
-              documentsHtml += `<li><a href="${doc.url}" target="_blank">Documento ${doc.id}</a></li>`;
+              docHtml = `<p>${doc.name}</p>`;
             }
+
+            documentsHtml += `<li>${docHtml}</li>`;
           });
 
           customerDetails.innerHTML = `
@@ -141,69 +155,6 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     });
   });
-
-  const cpfInput = document.getElementById("cpf");
-  if (cpfInput) {
-    cpfInput.addEventListener("input", function () {
-      var cpf = this.value;
-      this.value = formatCPF(cpf);
-    });
-  }
-
-  document
-    .getElementById("addClientForm")
-    .addEventListener("submit", function (event) {
-      event.preventDefault();
-
-      const formData = new FormData(this);
-
-      fetch(window.location.href, {
-        method: "POST",
-        body: formData,
-        headers: {
-          "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]")
-            .value,
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.status === "success") {
-            const list = document.querySelector(".list");
-            const newItem = document.createElement("div");
-            newItem.classList.add("list-item");
-            newItem.dataset.customerId = data.id;
-            newItem.innerHTML = `
-            <div class="user-info-name" data-customer-id="${data.id}">${data.name}</div>
-            <div class="user-info-cpf">${data.cpf}</div>
-            <div class="user-info-birthDate">${data.birthDate}</div>
-            <div class="user-info-email">${data.email}</div>
-            <div class="user-info-phone">${data.phone}</div>
-            <div class="user-info-documents">${data.documents}</div>
-            <div class="user-info-status">${data.status}</div>
-          `;
-            list.appendChild(newItem);
-            addRemoveListener(newItem);
-
-            document.getElementById("addClientForm").reset();
-          } else {
-            console.error(data.message);
-          }
-        })
-        .catch((error) => console.error("Error:", error));
-
-      const modal = document.getElementById("addModal");
-      closeModal(modal);
-    });
-
-  function formatCPF(cpf) {
-    cpf = cpf.replace(/\D/g, "");
-
-    cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
-    cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
-    cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-
-    return cpf;
-  }
 });
 
 let documentCount = 1;
