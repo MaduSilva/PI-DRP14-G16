@@ -182,12 +182,13 @@ header {
   padding: 15px;
   min-width: 50%;
   min-height: 50%;
+  margin-top: 30%;
   border: 15px solid #c2c0c0;
 }
 
 footer {
   background-color: #ccc;
-  margin-top: 200px;
+  margin-top: 30%;
   text-align: center;
   padding: 20px 0;
   position: sticky;
@@ -283,7 +284,27 @@ footer p {
 }
 
 .documents li {
+  background-color: #f2f2f2;
+  padding: 10px;
   margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.documents li p {
+  margin: 0;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.documents li button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
 }
 
 .document-image {
@@ -293,6 +314,8 @@ footer p {
 
 iframe {
   border: none;
+  width: 100%;
+  height: 260px;
 }
 
 .info-group {
@@ -303,4 +326,61 @@ iframe {
 
 .info-group > * {
   flex: 1 0 50%;
+}
+
+.view-document {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.view-document i {
+  margin-right: 5px;
+}
+
+.document-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  overflow: auto;
+}
+
+input[readonly],
+select[disabled] {
+  border: none;
+  background: none;
+  color: #000;
+}
+
+input[readonly]:focus,
+select[disabled]:focus {
+  outline: none;
+  border: none;
+}
+
+#addDocumentBtn {
+  margin-bottom: 20px;
+  background-color: #bedff7;
+  color: black;
+}
+
+.btn-download {
+  background-color: transparent;
+  border: none;
+  color: black;
+  padding: 12px 16px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-download:hover {
+  background-color: #bedff7;
 }

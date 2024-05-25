@@ -10,7 +10,7 @@ class Customer(models.Model):
     status = models.CharField(max_length=110, null=True)
 
     def save(self, *args, **kwargs):
-        if Customer.objects.filter(cpf=self.cpf).exists():
+        if self.id is None and Customer.objects.filter(cpf=self.cpf).exists():
             pass
         else:
             super(Customer, self).save(*args, **kwargs)

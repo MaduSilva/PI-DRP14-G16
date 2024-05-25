@@ -4,7 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard Imposto de Renda</title>
+    <link rel="icon" type="image/x-icon" href="https://designimages.appypie.com/favicon/technologyfavicon-9-text-purple.jpg">
     <link rel="stylesheet" href="static/css/styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   </head>
   <body>
     <header>
@@ -33,8 +35,8 @@
         <br />
         <div class="list">
           {% for customer in customers %}
-          <div class="list-item">
-            <div data-customer-id="{{ customer.id }}" class="user-info-name">
+          <div data-customer-id="{{ customer.id }}" class="list-item">
+            <div  data-customer-id="{{ customer.id }}"  class="user-info-name">
               {{ customer.name }}
             </div>
             <div class="user-info-status status">
@@ -108,7 +110,7 @@
             </div>
           </div>
 
-          <button type="button" id="addDocumentBtn">Adicionar Documento</button>
+          <button type="button" id="addDocumentBtn">Acrescentar Documento</button>
 
           <div class="buttons">
             <button
@@ -126,9 +128,12 @@
 
     <div id="customer-modal" class="modal">
       <div class="modal-content">
-        <button class="close-button" data-modal-close="#customer-modal">
-          Fechar
-        </button>
+        <button class="close-button" data-modal-close="#customer-modal">Fechar</button>
+        <div class="modal-buttons">
+          <button id="edit-customer">Editar</button>
+          <button id="save-customer" class="btn save" style="display: none;">Salvar</button>
+          <button id="cancel-edit" style="display: none;">Cancelar</button>
+        </div>
         <div id="customer-details"></div>
       </div>
     </div>
@@ -136,6 +141,6 @@
     <script src="static/js/script.js"></script>
   </body>
   <footer>
-    <p>2024 © - Todos os Direitos Reservados.</p>
+    <p>2024 © - DPR14 G16 - Todos os Direitos Reservados.</p>
   </footer>
 </html>

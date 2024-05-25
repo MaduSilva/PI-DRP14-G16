@@ -39,11 +39,9 @@ function toggleDeleteMode() {
 
 function removeItem(event) {
   if (isDeleteMode) {
-    const item = event.target.closest(".list-item .user-info-name");
+    const item = event.target.closest(".list-item");
     if (item) {
-      console.log(item);
       const customerId = item.dataset.customerId;
-      console.log(customerId);
       if (!customerId) {
         console.error("Customer ID is undefined");
         return;
@@ -106,19 +104,23 @@ document.addEventListener("DOMContentLoaded", function () {
             let docHtml = "";
 
             if (doc.document_type === "pdf") {
-              docHtml = `<iframe src="data:application/pdf;base64,${doc.data}" class="document-iframe"></iframe>`;
-            } else if (doc.document_type === "docx") {
               docHtml = `
-                    <p>${doc.name}</p>
-                    <a href="data:application/octet-stream;base64,${doc.data}" download="${doc.name}.docx">Baixar ${doc.name}</a>
+              <p>${doc.name}</p> <iframe src="data:application/pdf;base64,${doc.data}" class="document-iframe"></iframe>`;
+            } else if (doc.document_type === "docx") {
+              docHtml = ` <p>${doc.name}</p> <a class="btn-download" href="data:application/octet-stream;base64,${doc.data}" download="${doc.name}.${doc.document_type}">
+              <i class="fa fa-download"></i> Baixar
+            </a>
                 `;
             } else if (
               doc.document_type === "jpg" ||
               doc.document_type === "png"
             ) {
               docHtml = `
-                    <p>${doc.name}</p>
-                    <img src="data:image/png;base64,${doc.data}" alt="${doc.name}" class="document-image">
+              <p>${doc.name}</p>
+              <a class="btn-download" href="data:image/png;base64,${doc.data}" download="${doc.name}.${doc.document_type}">
+                <i class="fa fa-download"></i> Baixar
+              </a>
+              <img src="data:image/png;base64,${doc.data}" alt="${doc.name}" class="document-image">
                 `;
             } else {
               docHtml = `<p>${doc.name}</p>`;
@@ -129,26 +131,52 @@ document.addEventListener("DOMContentLoaded", function () {
 
           customerDetails.innerHTML = `
             <div class="customer-info">
-              <h2>${data.name}</h2>
+              <h2 id="customer-name">${data.name}</h2>
               <div class="info-group">
-                <p><strong>CPF:</strong> ${data.cpf}</p>
-                <p><strong>Data de Nascimento:</strong> ${data.birthDate}</p>
+                <p><strong>CPF:</strong> <input type="text" id="customer-cpf" value="${
+                  data.cpf
+                }" readonly></p>
+                <p><strong>Data de Nascimento:</strong> <input type="date" id="customer-birthDate" value="${
+                  data.birthDate
+                }" readonly></p>
               </div>
               <div class="info-group">
-                <p><strong>Email:</strong> ${data.email}</p>
-                <p><strong>Telefone:</strong> ${data.phone}</p>
+                <p><strong>Email:</strong> <input type="email" id="customer-email" value="${
+                  data.email
+                }" readonly></p>
+                <p><strong>Telefone:</strong> <input type="tel" id="customer-phone" value="${
+                  data.phone
+                }" readonly></p>
               </div>
               <div class="info-group">
-                <p><strong>Status:</strong> ${data.status}</p>
+                <p><strong>Status:</strong> 
+                  <select id="customer-status" disabled>
+                    <option value="Pendente" ${
+                      data.status === "Pendente" ? "selected" : ""
+                    }>Pendente</option>
+                    <option value="Enviada" ${
+                      data.status === "Enviada" ? "selected" : ""
+                    }>Enviada</option>
+                    <option value="Analisando" ${
+                      data.status === "Analisando" ? "selected" : ""
+                    }>Analisando</option>
+                    <option value="Concluido" ${
+                      data.status === "Concluido" ? "selected" : ""
+                    }>Concluído</option>
+                  </select>
+                </p>
               </div>
             </div>
             <div class="documents">
               <h3>Documentos:</h3>
-              <ul>${documentsHtml}</ul>
+              <ul id="document-list">
+                ${documentsHtml}
+              </ul>
             </div>
           `;
 
           openModal(modal);
+          initializeEditButtons(customerId);
         })
         .catch((error) =>
           console.error("Erro ao buscar informações do cliente:", error)
@@ -181,3 +209,73 @@ document
       .getElementById("addClientForm")
       .insertBefore(documentGroup, document.getElementById("addDocumentBtn"));
   });
+
+function initializeEditButtons(customerId) {
+  const editButton = document.getElementById("edit-customer");
+  const saveButton = document.getElementById("save-customer");
+  const cancelButton = document.getElementById("cancel-edit");
+  const inputFields = document.querySelectorAll(
+    "#customer-details input, #customer-details select"
+  );
+
+  editButton.addEventListener("click", function () {
+    inputFields.forEach(function (input) {
+      input.removeAttribute("readonly");
+      input.removeAttribute("disabled");
+    });
+    editButton.style.display = "none";
+    saveButton.style.display = "inline-block";
+    cancelButton.style.display = "inline-block";
+  });
+
+  cancelButton.addEventListener("click", function () {
+    inputFields.forEach(function (input) {
+      input.setAttribute("readonly", "readonly");
+      input.setAttribute("disabled", "disabled");
+    });
+    editButton.style.display = "inline-block";
+    saveButton.style.display = "none";
+    cancelButton.style.display = "none";
+  });
+
+  saveButton.addEventListener("click", function () {
+    const csrfToken = document.querySelector(
+      "[name=csrfmiddlewaretoken]"
+    ).value;
+
+    const updatedData = {
+      id: customerId,
+      name: document.getElementById("customer-name").innerText,
+      cpf: document.getElementById("customer-cpf").value,
+      birthDate: document.getElementById("customer-birthDate").value,
+      email: document.getElementById("customer-email").value,
+      phone: document.getElementById("customer-phone").value,
+      status: document.getElementById("customer-status").value,
+    };
+
+    fetch(`/customer/${customerId}/edit/`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,
+      },
+      body: JSON.stringify(updatedData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "success") {
+          inputFields.forEach(function (input) {
+            input.setAttribute("readonly", "readonly");
+            input.setAttribute("disabled", "disabled");
+          });
+          editButton.style.display = "inline-block";
+          saveButton.style.display = "none";
+          cancelButton.style.display = "none";
+          window.location.href = "/";
+        } else {
+          console.error("Error on save data", data.message);
+        }
+      })
+      .catch((error) => console.error("Erro:", error));
+  });
+}

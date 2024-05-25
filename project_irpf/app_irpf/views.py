@@ -1,8 +1,11 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from .models import Customer, Document
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 import datetime
 import base64
+import json
 import os
 
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -39,7 +42,7 @@ def home(request):
             
             Document.objects.create(customer=customer, name=document_name, document_type=document_type, file=document_file)
 
-        return JsonResponse({'status': 'success', 'id': customer.id})
+        return redirect('home')
     
     customers = Customer.objects.all()
     return render(request, 'dashboard/home.html', {'customers': customers})
@@ -58,3 +61,22 @@ def customer_details(request, customer_id):
         'documents': [{'id': doc.id, 'name': doc.name, 'data': base64.b64encode(doc.file.read()).decode('utf-8'), 'document_type': doc.document_type} for doc in documents],
     }
     return JsonResponse(data)
+
+@csrf_exempt
+@require_http_methods(["PUT"])
+def edit_customer(request, customer_id):
+    try:
+        customer = get_object_or_404(Customer, id=customer_id)
+        data = json.loads(request.body)
+
+        customer.name = data.get("name", customer.name)
+        customer.cpf = data.get("cpf", customer.cpf)
+        customer.birthDate = data.get("birthDate", customer.birthDate)
+        customer.email = data.get("email", customer.email)
+        customer.phone = data.get("phone", customer.phone)
+        customer.status = data.get("status", customer.status)
+
+        customer.save()
+        return JsonResponse({'status': 'success', 'message': 'Customer updated successfully'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
